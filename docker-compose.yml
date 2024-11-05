@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gin_backend
+    ports:
+      - "8080:8080"
+    env_file: 
+      - .env  # Include the .env file for environment variables
+    depends_on:
+      - db
+    networks:
+      - trainify_network
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: Amirmusic1
+      MYSQL_DATABASE: trainify
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - trainify_network
+
+volumes:
+  db_data:
+
+networks:
+  trainify_network:
