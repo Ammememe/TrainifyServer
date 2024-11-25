@@ -18,6 +18,10 @@ func SetupRoutes(r *gin.Engine) {
 	r.POST("/register", controller.Register)
 	r.POST("/logout", controller.Logout)
 	r.Use(cors.Default())
+	r.POST("/workout-history", controller.SaveWorkoutHistory)
+    r.GET("/workout-history/:user_id", controller.GetWorkoutsByDate)
+
+
 	
 
 	private := r.Group("/private")
