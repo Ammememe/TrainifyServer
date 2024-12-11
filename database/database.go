@@ -18,6 +18,7 @@ func Connect() {
 	if dsn == "" {
 		log.Fatal("Environment variable `dsn` is not set.")
 	}
+	log.Printf("Using DSN: %s", dsn)
 
 	// Open connection to the MySQL database using Gorm
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
