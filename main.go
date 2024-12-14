@@ -43,43 +43,39 @@ func main() {
     router.Use(cors.New(cors.Config{
         AllowOrigins: []string{
             "http://localhost:3000",
-            "http://localhost:8001",
             "http://swipetofit.com",
             "http://api.swipetofit.com",
             "http://login.swipetofit.com",
         },
-        AllowMethods: []string{
-            "GET",
-            "POST",
-            "PUT",
-            "PATCH",
-            "DELETE",
-            "HEAD",
-            "OPTIONS",
-        },
+        AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
         AllowHeaders: []string{
             "Origin",
-            "Content-Length",
             "Content-Type",
-            "Authorization",
             "Accept",
+            "Authorization",
             "X-Requested-With",
-            "Access-Control-Allow-Origin",
-            "Access-Control-Allow-Headers",
-            "Access-Control-Allow-Methods",
-            "Access-Control-Allow-Credentials",
         },
-        ExposeHeaders: []string{
-            "Content-Length",
-            "Access-Control-Allow-Origin",
-            "Access-Control-Allow-Headers",
-            "Access-Control-Allow-Methods",
-            "Access-Control-Allow-Credentials",
-        },
+        ExposeHeaders: []string{"Content-Length"},
         AllowCredentials: true,
-        AllowWildcard:   false,
-        MaxAge:          12 * time.Hour,
+        AllowOriginFunc: func(origin string) bool {
+            return true // Be careful with this in production
+        },
+        MaxAge: 12 * time.Hour,
     }))
+    
+    // Add a custom middleware to handle OPTIONS requests
+    router.Use(func(c *gin.Context) {
+        if c.Request.Method == "OPTIONS" {
+            c.Header("Access-Control-Allow-Origin", c.GetHeader("Origin"))
+            c.Header("Access-Control-Allow-Credentials", "true")
+            c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+            c.Header("Access-Control-Allow-Headers", "Authorization, Origin, Content-Type, Accept")
+            c.Status(204)
+            c.Abort()
+            return
+        }
+        c.Next()
+    })
 
     // Add OPTIONS handler for preflight requests
     router.OPTIONS("/*path", func(c *gin.Context) {
