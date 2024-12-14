@@ -45,9 +45,7 @@ func main() {
 
     router.Use(cors.New(cors.Config{
         AllowOrigins: []string{
-            "http://172.232.130.101",    // Frontend IP
-            "http://172.232.130.217",    // API IP
-            "http://172.232.131.139",    // Auth IP
+            "http://localhost:3000",    // Frontend IP
             "http://swipetofit.com",
             "http://api.swipetofit.com",
             "http://login.swipetofit.com",
