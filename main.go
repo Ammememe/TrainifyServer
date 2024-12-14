@@ -1,15 +1,15 @@
 package main
 
 import (
-	"Trainify/database"
-	"Trainify/routes"
-	"log"
-	"os"
-	"time"
+    "Trainify/database"
+    "Trainify/routes"
+    "log"
+    "os"
+    "time"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+    "github.com/gin-contrib/cors"
+    "github.com/gin-gonic/gin"
+    "github.com/joho/godotenv"
 )
 
 func init() {
@@ -21,7 +21,6 @@ func init() {
 }
 
 func main() {
-    // Close the db connection using defer clause
     sqlDb, err := database.DBConn.DB()
     if err != nil {
         log.Fatalf("Error getting DB connection: %v", err)
@@ -35,40 +34,59 @@ func main() {
 
     gin.SetMode(gin.ReleaseMode)
     router := gin.New()
-    router.Use(func(c *gin.Context) {
-        log.Printf("Incoming request from Origin: %s", c.Request.Header.Get("Origin"))
-        log.Printf("Request Method: %s", c.Request.Method)
-        log.Printf("Request Headers: %v", c.Request.Header)
-        c.Next()
-    })
+    
+    // Add logging middleware
+    router.Use(gin.Logger())
+    router.Use(gin.Recovery())
 
-
+    // CORS configuration
     router.Use(cors.New(cors.Config{
         AllowOrigins: []string{
-            "http://localhost:3000",    // Frontend IP
+            "http://localhost:3000",
+            "http://localhost:8001",
             "http://swipetofit.com",
             "http://api.swipetofit.com",
             "http://login.swipetofit.com",
         },
-        AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+        AllowMethods: []string{
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "HEAD",
+            "OPTIONS",
+        },
         AllowHeaders: []string{
             "Origin",
-            "Auth-Token",
-            "Token",
+            "Content-Length",
             "Content-Type",
             "Authorization",
-            "Access-Control-Allow-Credentials",  // Add this
-            "Access-Control-Allow-Headers",      // Add this
-            "Access-Control-Allow-Origin",       // Add this
-            "Accept",                           // Add this
-            "X-Requested-With",            
+            "Accept",
+            "X-Requested-With",
+            "Access-Control-Allow-Origin",
+            "Access-Control-Allow-Headers",
+            "Access-Control-Allow-Methods",
+            "Access-Control-Allow-Credentials",
         },
-        ExposeHeaders:    []string{"Content-Length", "Authorization"},
+        ExposeHeaders: []string{
+            "Content-Length",
+            "Access-Control-Allow-Origin",
+            "Access-Control-Allow-Headers",
+            "Access-Control-Allow-Methods",
+            "Access-Control-Allow-Credentials",
+        },
         AllowCredentials: true,
-        MaxAge:           12 * time.Hour,  // Cache preflight requests
+        AllowWildcard:   false,
+        MaxAge:          12 * time.Hour,
     }))
-   
-    
+
+    // Add OPTIONS handler for preflight requests
+    router.OPTIONS("/*path", func(c *gin.Context) {
+        c.Status(204)
+        c.Done()
+    })
+
     routes.SetupRoutes(router)
 
     log.Printf("Server running on port %s", port)
