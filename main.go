@@ -43,9 +43,9 @@ func main() {
     router.Use(cors.New(cors.Config{
         AllowOrigins: []string{
             "http://localhost:3000",
-            "http://swipetofit.com",
-            "http://api.swipetofit.com",
-            "http://login.swipetofit.com",
+            "https://swipetofit.com",
+            "https://api.swipetofit.com",
+            "https://login.swipetofit.com",
         },
         AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
         AllowHeaders: []string{
